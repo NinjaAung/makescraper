@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"os"
 	"strconv"
@@ -20,8 +21,45 @@ type Post struct {
 var err error
 
 func main() {
+	// Flags
+	sortBy := flag.String("sort-by", "", "Sort by: Hot, Top, Relevance, New or Comments")
+	postFrom := flag.String("post-from", "", "Post-from: Hour, 24, Week Month or Year")
+	flag.Parse()
+
 	// Vars
 	var posts []Post
+	baseURL := "https://new.reddit.com/r/wallstreetbets/search/?q=-flair%3AMeme%20-flair%3ASatire%20-flair%3AShitpost&restrict_sr=1"
+
+	switch sort := *sortBy; sort {
+	case "Relevance":
+		baseURL += "&sort=relevance"
+	case "Hot":
+		baseURL += "&sort=hot"
+	case "Top":
+		baseURL += "&sort=top"
+	case "New":
+		baseURL += "&sort=new"
+	case "Comments":
+		baseURL += "&sort=comments"
+	default:
+		baseURL += "&sort=hot"
+	}
+
+	switch post := *postFrom; post {
+	case "Hour":
+		baseURL += "&t=hour"
+	case "24":
+		baseURL += "&t=day"
+	case "Week":
+		baseURL += "&t=weel"
+	case "Month":
+		baseURL += "&t=month"
+	case "Year":
+		baseURL += "&t=year"
+	default:
+		baseURL += "&t=day"
+	}
+
 	// Instantiate default collector
 	c := colly.NewCollector()
 
@@ -37,7 +75,7 @@ func main() {
 	})
 
 	// Start scraping on
-	c.Visit("https://new.reddit.com/r/wallstreetbets/search/?q=-flair%3AMeme%20-flair%3ASatire%20-flair%3AShitpost&restrict_sr=1&t=day&sort=hot")
+	c.Visit(baseURL)
 
 	// for _, v := range posts {
 	// 	fmt.Printf("\nTitle: %s\nFlair: %s\nLink: %s\nUpvotes: %d\n", v.Title, v.Flair, v.Link, v.Upvotes)
