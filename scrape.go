@@ -10,22 +10,24 @@ import (
 // Post is a representation of each reddit block
 type Post struct {
 	Title   string
-	Link    string
-	Upvotes int
 	Flair   string
+	Link    string
+	Upvotes int64
 }
 
 var err error
 
 func main() {
+	// Vars
+	var posts []Post
 	// Instantiate default collector
 	c := colly.NewCollector()
-	// a.SQnoC3ObvgnGjWt90zD9Z
-	// div._1oQyIsiPHYt6nx7VOmd1sz.bE7JgM2ex7W3aF3zci5bm.D3IyhBGwXo9jPwz-Ka0Ve
+
 	c.OnHTML("div._1oQyIsiPHYt6nx7VOmd1sz.bE7JgM2ex7W3aF3zci5bm.D3IyhBGwXo9jPwz-Ka0Ve", func(e *colly.HTMLElement) {
-		print(findTitleAndLink(e))
-		print(findVotes(e))
-		print(findFlair(e))
+		Title, Link := findTitleAndLink(e)
+		Upvotes := findVotes(e)
+		Flair := findFlair(e)
+		posts = append(posts, Post{Title, Flair, Link, Upvotes})
 	})
 	// Before making a request print "Visiting ..."
 	c.OnRequest(func(r *colly.Request) {
@@ -34,6 +36,11 @@ func main() {
 
 	// Start scraping on
 	c.Visit("https://new.reddit.com/r/wallstreetbets/search/?q=-flair%3AMeme%20-flair%3ASatire%20-flair%3AShitpost&restrict_sr=1&t=day&sort=hot")
+
+	for _, v := range posts {
+		fmt.Printf("\nTitle: %s\nFlair: %s\nLink: %s\nUpvotes: %d\n", v.Title, v.Flair, v.Link, v.Upvotes)
+	}
+
 }
 
 func findTitleAndLink(e *colly.HTMLElement) (title, link string) {
@@ -43,7 +50,7 @@ func findTitleAndLink(e *colly.HTMLElement) (title, link string) {
 		link = elem.Attr("href")
 
 	})
-	return title, link
+	return title, "https://new.reddit.com" + link
 }
 
 func findVotes(e *colly.HTMLElement) (vote int64) {
