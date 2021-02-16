@@ -15,4 +15,5 @@
 vendor/
 .vscode/
 makescraper
-test.*
+test.* 
+output.json
