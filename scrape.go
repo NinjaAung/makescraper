@@ -23,7 +23,7 @@ func main() {
 	// a.SQnoC3ObvgnGjWt90zD9Z
 	// div._1oQyIsiPHYt6nx7VOmd1sz.bE7JgM2ex7W3aF3zci5bm.D3IyhBGwXo9jPwz-Ka0Ve
 	c.OnHTML("div._1oQyIsiPHYt6nx7VOmd1sz.bE7JgM2ex7W3aF3zci5bm.D3IyhBGwXo9jPwz-Ka0Ve", func(e *colly.HTMLElement) {
-		findTitle(e)
+		findTitleAndLink(e)
 		//findVotes(e)
 		findFlair(e)
 	})
@@ -36,14 +36,14 @@ func main() {
 	c.Visit("https://new.reddit.com/r/wallstreetbets/search/?q=-flair%3AMeme%20-flair%3ASatire%20-flair%3AShitpost&restrict_sr=1&t=day&sort=hot")
 }
 
-func findTitle(e *colly.HTMLElement) {
+func findTitleAndLink(e *colly.HTMLElement) (titles, links []string) {
 	container := e
 	container.ForEach("a.SQnoC3ObvgnGjWt90zD9Z", func(_ int, elem *colly.HTMLElement) {
-		fmt.Print(elem.Text)
-		fmt.Println(elem.Attr("href"))
+		titles = append(titles, string(elem.Text))
+		links = append(links, string(elem.Attr("href")))
 
 	})
-
+	return titles, links
 }
 
 func findVotes(e *colly.HTMLElement) []int64 {
@@ -73,10 +73,11 @@ func findVotes(e *colly.HTMLElement) []int64 {
 	return votes
 }
 
-func findFlair(e *colly.HTMLElement) {
+func findFlair(e *colly.HTMLElement) (flairs []string) {
 	e.ForEach("div._2X6EB3ZhEeXCh1eIVA64XM span", func(_ int, elem *colly.HTMLElement) {
-		fmt.Print(elem.Text)
+		flairs = append(flairs, string(elem.Text))
 	})
+	return flairs
 }
 
 func check(err error) {
