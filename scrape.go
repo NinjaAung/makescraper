@@ -15,11 +15,7 @@ type Post struct {
 	Flair   string
 }
 
-func check(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
+var err error
 
 func main() {
 	// Instantiate default collector
@@ -28,7 +24,7 @@ func main() {
 	// div._1oQyIsiPHYt6nx7VOmd1sz.bE7JgM2ex7W3aF3zci5bm.D3IyhBGwXo9jPwz-Ka0Ve
 	c.OnHTML("div._1oQyIsiPHYt6nx7VOmd1sz.bE7JgM2ex7W3aF3zci5bm.D3IyhBGwXo9jPwz-Ka0Ve", func(e *colly.HTMLElement) {
 		findTitle(e)
-		findVotes(e)
+		//findVotes(e)
 		findFlair(e)
 	})
 	// Before making a request print "Visiting ..."
@@ -37,7 +33,6 @@ func main() {
 	})
 
 	// Start scraping on
-	// https://new.reddit.com/r/wallstreetbets/search?sort=hot&restrict_sr=on&q=flair%3ADD&t=day
 	c.Visit("https://new.reddit.com/r/wallstreetbets/search/?q=-flair%3AMeme%20-flair%3ASatire%20-flair%3AShitpost&restrict_sr=1&t=day&sort=hot")
 }
 
@@ -51,11 +46,12 @@ func findTitle(e *colly.HTMLElement) {
 
 }
 
-func findVotes(e *colly.HTMLElement) {
-	//var votes []int
+func findVotes(e *colly.HTMLElement) []int64 {
+	var (
+		vote  int64
+		votes []int64
+	)
 	e.ForEach("div._1rZYMD_4xY3gRcSS3p8ODO._3a2ZHWaih05DgAOtvu6cIo", func(_ int, elem *colly.HTMLElement) {
-		var err error
-		var vote int64
 		voteString := elem.Text
 
 		if voteString == "Vote" {
@@ -72,12 +68,19 @@ func findVotes(e *colly.HTMLElement) {
 
 			}
 		}
-		fmt.Println(vote)
+		votes = append(votes, vote)
 	})
+	return votes
 }
 
 func findFlair(e *colly.HTMLElement) {
 	e.ForEach("div._2X6EB3ZhEeXCh1eIVA64XM span", func(_ int, elem *colly.HTMLElement) {
 		fmt.Print(elem.Text)
 	})
+}
+
+func check(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
