@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/gocolly/colly"
@@ -37,9 +39,20 @@ func main() {
 	// Start scraping on
 	c.Visit("https://new.reddit.com/r/wallstreetbets/search/?q=-flair%3AMeme%20-flair%3ASatire%20-flair%3AShitpost&restrict_sr=1&t=day&sort=hot")
 
-	for _, v := range posts {
-		fmt.Printf("\nTitle: %s\nFlair: %s\nLink: %s\nUpvotes: %d\n", v.Title, v.Flair, v.Link, v.Upvotes)
-	}
+	// for _, v := range posts {
+	// 	fmt.Printf("\nTitle: %s\nFlair: %s\nLink: %s\nUpvotes: %d\n", v.Title, v.Flair, v.Link, v.Upvotes)
+	// }
+
+	outputToJSON(posts, "output.json")
+
+}
+func outputToJSON(posts []Post, fileName string) {
+	postJSON, err := json.Marshal(posts)
+	check(err)
+	f, err := os.Create(fileName)
+	check(err)
+	f.Write(postJSON)
+	f.Close()
 
 }
 
