@@ -47,7 +47,7 @@ func main() {
 
 }
 func outputToJSON(posts []Post, fileName string) {
-	postJSON, err := json.Marshal(posts)
+	postJSON, err := json.MarshalIndent(posts, "", "    ")
 	check(err)
 	f, err := os.Create(fileName)
 	check(err)
